@@ -51,61 +51,6 @@ The core idea is a continuous loop, not a one-time report: today's data
 sharpens tomorrow's forecast, and every recommendation is delivered in
 the way that reaches a farmer, not just the way that's easiest to build.
 
-## Getting started
-
-### Prerequisites
-
-- Docker + docker-compose
-- A free data.gov.in account (no key needed for the weather data)
-
-### 1. Get a free data.gov.in API key
-
-1. Register at https://data.gov.in/user/register — instant, no approval wait
-2. Open the mandi price dataset:
-   https://www.data.gov.in/catalog/current-daily-price-various-commodities-various-markets-mandi
-3. Click **Catalog API** — this page gives you your resource ID and API key
-
-### 2. Configure
-
-```bash
-cp .env.example .env
-# edit .env — fill in DATA_GOV_API_KEY and DATA_GOV_RESOURCE_ID
-```
-
-### 3. Run the infrastructure
-
-```bash
-docker-compose up -d zookeeper kafka cassandra redis
-```
-
-Wait ~30 seconds for Cassandra to report healthy, then load the schema:
-
-```bash
-docker exec -i $(docker ps -qf name=cassandra) cqlsh < cassandra/schema.cql
-```
-
-### 4. Run the ingestion service
-
-```bash
-docker-compose up --build ingestion-go
-```
-
-You should see:
-
-```
-fetching mandi prices...
-published 100 price records
-fetching weather data...
-published 7 weather records for Pune
-```
-
-### 5. Verify data is flowing
-
-```bash
-docker exec -it $(docker ps -qf name=kafka) kafka-console-consumer \
-  --bootstrap-server localhost:9092 --topic price.raw --from-beginning --max-messages 5
-```
-
 ## License
 
 MIT — this is a learning/portfolio project built entirely on public,
