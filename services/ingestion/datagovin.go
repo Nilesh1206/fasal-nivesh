@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -98,4 +100,26 @@ func (c *DataGovClient) FetchLatestPrices(limit, offset int) ([]PriceRecord, err
 		})
 	}
 	return records, nil
+}
+
+// parseFloatSafe converts a possibly messy numeric string into a float64.
+// It trims whitespace, drops thousands separators (commas), and treats
+// empty or non-numeric values as 0.
+func parseFloatSafe(s string) float64 {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	// Some datasets use commas as thousand separators; remove them.
+	s = strings.ReplaceAll(s, ",", "")
+	// Reject common non-numeric tokens.
+	lower := strings.ToLower(s)
+	if lower == "na" || lower == "n/a" || lower == "-" || lower == "null" {
+		return 0
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0
+	}
+	return f
 }

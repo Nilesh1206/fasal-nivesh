@@ -32,7 +32,7 @@ func main() {
 	}
 
 	dataGov := NewDataGovClient(cfg.DataGovAPIKey, cfg.DataGovResourceID)
-	nasaPower := NewNASAPowerClient()
+	nasaPower := NewNasaPowerClient()
 	publisher := NewPublisher(cfg.KafkaBrokers)
 	defer publisher.Close()
 
